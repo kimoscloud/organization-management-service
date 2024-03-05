@@ -1,7 +1,6 @@
 package organization
 
 import (
-	errors2 "github.com/kimoscloud/organization-management-service/internal/core/errors"
 	"github.com/kimoscloud/organization-management-service/internal/core/ports/logging"
 	repository "github.com/kimoscloud/organization-management-service/internal/core/ports/repository"
 	userOrganizationRepository "github.com/kimoscloud/organization-management-service/internal/core/ports/repository/user-organization"
@@ -49,10 +48,10 @@ func (cu RemoveOrganizationMemberUseCase) Handler(
 	if !authenticatedOrgUser.CheckIfOrgUserHasPermissions(
 		[]string{domain.PERMISSION_REMOVE_ORGANIZATION_TEAM_MEMBER},
 	) {
-		return errors2.NewForbiddenError(
+		return errors.NewForbiddenError(
 			"Error removing user from the organization",
 			"Authenticated user does not have permission to remove user from the organization",
-			errors2.ErrorUserCantRemoveUsersFromOrganization,
+			errors.ErrorUserCantRemoveUsersFromOrganization,
 		).AppError
 	}
 	if err := cu.userOrganizationRepo.RemoveUserFromOrganization(

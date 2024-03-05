@@ -2,11 +2,15 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kimoscloud/organization-management-service/internal/core/auth"
+	userRepository "github.com/kimoscloud/organization-management-service/internal/core/ports/repository/user"
 	"strings"
 )
 
-func Auth() gin.HandlerFunc {
+type AuthMiddleware struct {
+	repository userRepository.Repository
+}
+
+func (midd *AuthMiddleware) Auth() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		tokenString := context.GetHeader("Authorization")
 		if tokenString == "" {
@@ -28,7 +32,7 @@ func Auth() gin.HandlerFunc {
 			context.Abort()
 			return
 		}
-		claims, err := auth.ValidateToken(
+		claims, err := midd.repository.ValidateToken(
 			authorizationHeaderSplitted[1],
 		)
 		if err != nil {
@@ -43,4 +47,8 @@ func Auth() gin.HandlerFunc {
 		context.Set("kimosUserId", claims.ID)
 		context.Next()
 	}
+}
+
+func NewAuthMiddleware(repo userRepository.Repository) *AuthMiddleware {
+	return &AuthMiddleware{repository: repo}
 }

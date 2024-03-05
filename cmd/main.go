@@ -22,6 +22,7 @@ import (
 	userOrganizationRepositoryPostgres "github.com/kimoscloud/organization-management-service/internal/infrastructure/repository/postgres/user-organization"
 	userRepositoryRest "github.com/kimoscloud/organization-management-service/internal/infrastructure/repository/rest/user"
 	"github.com/kimoscloud/organization-management-service/internal/infrastructure/server"
+	"github.com/kimoscloud/organization-management-service/internal/middleware"
 	"log"
 	"os"
 	"os/signal"
@@ -62,6 +63,7 @@ func main() {
 		teamRepo,
 		teamMemberRepo,
 		userRepo,
+		middleware.NewAuthMiddleware(userRepo),
 		logger,
 	)
 	httpServer := server.NewHttpServer(
@@ -94,6 +96,7 @@ func initOrganizationController(
 	teamRepo teamRepository.Repository,
 	teamMemberRepo teamMemberRepository.Repository,
 	userRepo userRepository.Repository,
+	middleware *middleware.AuthMiddleware,
 	logger logging2.Logger,
 ) {
 	createOrganizationUseCase := organization.NewCreateOrganizationUseCase(
@@ -153,6 +156,7 @@ func initOrganizationController(
 		removeOrganizationUserUseCase,
 		createTeamUsecase,
 		addMemberToTeamUseCase,
+		middleware,
 	)
 	organizationController.InitRouter()
 }

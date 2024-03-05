@@ -4,6 +4,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	organization "github.com/kimoscloud/organization-management-service/internal/core/model/entity"
 	"github.com/kimoscloud/organization-management-service/internal/core/ports/repository/user"
+	dto "github.com/kimoscloud/value-types/domain/auth/dto"
 	"strings"
 )
 
@@ -15,6 +16,11 @@ func NewUserRepositoryRest() user.Repository {
 	return &RepositoryRest{
 		client: resty.New(),
 	}
+}
+
+func (repo *RepositoryRest) ValidateToken(signedToken string) (*dto.JWTClaim, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (repo *RepositoryRest) GetByID(id string) (*organization.User, error) {

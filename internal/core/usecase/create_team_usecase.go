@@ -1,7 +1,6 @@
 package organization
 
 import (
-	errors2 "github.com/kimoscloud/organization-management-service/internal/core/errors"
 	"github.com/kimoscloud/organization-management-service/internal/core/model/constants"
 	"github.com/kimoscloud/organization-management-service/internal/core/model/entity"
 	request "github.com/kimoscloud/organization-management-service/internal/core/model/request"
@@ -40,18 +39,18 @@ func (uc *CreateTeamUseCase) Handler(userId, organizationId string, request *req
 	tx := uc.teamRepo.BeginTransaction()
 	defer tx.Rollback()
 	if !uc.checkUserHasPermissionUseCase.Handler(userId, organizationId, []string{domain.PERMISSION_CREATE_TEAM}) {
-		return nil, errors2.NewForbiddenError(
+		return nil, errors.NewForbiddenError(
 			"Error creating team in the organization",
 			"The user don't have access to create a team",
-			errors2.ErrorUserCantCreateTeamIntoOrganization,
+			errors.ErrorUserCantCreateTeamIntoOrganization,
 		).AppError
 	}
 	teams, err := uc.teamRepo.GetByNameOrSlugAndOrgId(request.Name, request.Slug, organizationId)
 	if err != nil {
-		return nil, errors.NewInternalServerError("Error trying to get organizations and slugs for the company", "", errors2.ErrorTryingToGetTeamsByNameAndSlug).AppError
+		return nil, errors.NewInternalServerError("Error trying to get organizations and slugs for the company", "", errors.ErrorTryingToGetTeamsByNameAndSlug).AppError
 	}
 	if len(teams) > 0 {
-		return nil, errors2.NewConflictError("The organization has a team with the same name or slug", "", errors2.ErrorConflictTeamExistWithSameNameOrSlug).AppError
+		return nil, errors.NewConflictError("The organization has a team with the same name or slug", "", errors.ErrorConflictTeamExistWithSameNameOrSlug).AppError
 	}
 	team, err := uc.teamRepo.Create(&organization.Team{
 		Name:           request.Name,
@@ -62,7 +61,7 @@ func (uc *CreateTeamUseCase) Handler(userId, organizationId string, request *req
 	if err != nil {
 		uc.logger.Error("Error creating the team", err)
 		tx.Rollback()
-		return nil, errors.NewInternalServerError("Error creating team into organization", "Error at the moment to create the organization", errors2.ErrorCreatingTeam).AppError
+		return nil, errors.NewInternalServerError("Error creating team into organization", "Error at the moment to create the organization", errors.ErrorCreatingTeam).AppError
 	}
 	// This may can be another case
 	_, err = uc.teamMemberRepository.Create(&organization.TeamMember{
@@ -75,7 +74,7 @@ func (uc *CreateTeamUseCase) Handler(userId, organizationId string, request *req
 	if err != nil {
 		uc.logger.Error("Error creating the team member", err)
 		tx.Rollback()
-		return nil, errors.NewInternalServerError("Error creating team member into team", "Error at the moment to create the organization", errors2.ErrorCreatingTeam).AppError
+		return nil, errors.NewInternalServerError("Error creating team member into team", "Error at the moment to create the organization", errors.ErrorCreatingTeam).AppError
 	}
 	tx.Commit()
 	return team, nil

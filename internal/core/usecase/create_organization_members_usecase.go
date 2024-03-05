@@ -1,7 +1,6 @@
 package organization
 
 import (
-	errors2 "github.com/kimoscloud/organization-management-service/internal/core/errors"
 	"github.com/kimoscloud/organization-management-service/internal/core/model/entity"
 	request "github.com/kimoscloud/organization-management-service/internal/core/model/request"
 	"github.com/kimoscloud/organization-management-service/internal/core/ports/logging"
@@ -48,7 +47,7 @@ func (cu CreateOrganizationMemberUseCase) Handler(
 	tx := cu.userOrganizationRepo.BeginTransaction()
 	defer tx.Rollback()
 	if !cu.checkUserHasPermissionsToMakeAction.Handler(authenticatedUserId, orgId, []string{domain.PERMISSION_ADD_ORGANIZATION_MEMBER}) {
-		return errors2.NewForbiddenError("The user don't have the privileges to do this operation",
+		return errors.NewForbiddenError("The user don't have the privileges to do this operation",
 			"The user don't have the privileges to do this operation if the error persist, contact with your administrator or contact us support@kimos.cloud", "0000019").AppError
 	}
 	role, err := cu.roleRepo.GetRoleByIdAndOrgId(request.RoleId, orgId)

@@ -19,6 +19,7 @@ type OrganizationController struct {
 	removeOrganizationMemberUseCase        *usecase.RemoveOrganizationMemberUseCase
 	createTeamUseCase                      *usecase.CreateTeamUseCase
 	addMemberToTeamUseCase                 *usecase.AddTeamMembersUseCase
+	middleware                             *middleware.AuthMiddleware
 	logger                                 logging.Logger
 }
 
@@ -32,6 +33,7 @@ func NewOrganizationController(
 	removeOrganizationMemberUseCase *usecase.RemoveOrganizationMemberUseCase,
 	createTeamUseCase *usecase.CreateTeamUseCase,
 	addMemberToTeamUseCase *usecase.AddTeamMembersUseCase,
+	middleware *middleware.AuthMiddleware,
 ) OrganizationController {
 	return OrganizationController{
 		gin:                                    gin,
@@ -43,11 +45,13 @@ func NewOrganizationController(
 		removeOrganizationMemberUseCase:        removeOrganizationMemberUseCase,
 		createTeamUseCase:                      createTeamUseCase,
 		addMemberToTeamUseCase:                 addMemberToTeamUseCase,
+		middleware:                             middleware,
 	}
 }
 
 func (oc OrganizationController) InitRouter() {
-	api := oc.gin.Group("/api/v1/organizations", middleware.Auth())
+
+	api := oc.gin.Group("/api/v1/organizations", oc.middleware.Auth())
 	api.GET("/:orgId/teams/:teamId/members", oc.getTeamMembers)
 	api.POST("/:orgId/teams/:teamId/members", oc.addTeamMembers)
 	api.DELETE("/:orgId/teams/:teamId/members", oc.removeTeamMembers)
