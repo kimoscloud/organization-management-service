@@ -71,13 +71,13 @@ func (repo *RepositoryPostgres) GetByIDAndUserId(
 ) (*organization.Organization, error) {
 	var orgResult organization.Organization
 	if err := repo.db.
-		Table("Organizations").
+		Table("organizations").
 		Joins(
-			"INNER JOIN \"Organization_Users\" ou ON \"Organizations\"."+
+			"INNER JOIN \"organization_users\" ou ON \"organizations\"."+
 				"id = ou."+"organization_id",
 		).
 		Where(" ou.user_id = ?", userId).
-		Where("\"Organizations\".id = ?", orgId).
+		Where("\"organizations\".id = ?", orgId).
 		Where("ou.is_active = ?", true).
 		First(&orgResult).
 		Error; err != nil {
