@@ -12,6 +12,7 @@ import (
 	userRepository "github.com/kimoscloud/organization-management-service/internal/core/ports/repository/user"
 	userOrganizationRepository "github.com/kimoscloud/organization-management-service/internal/core/ports/repository/user-organization"
 	organization "github.com/kimoscloud/organization-management-service/internal/core/usecase"
+	"github.com/kimoscloud/organization-management-service/internal/infrastructure/client/rest"
 	"github.com/kimoscloud/organization-management-service/internal/infrastructure/configuration"
 	"github.com/kimoscloud/organization-management-service/internal/infrastructure/db"
 	"github.com/kimoscloud/organization-management-service/internal/infrastructure/logging"
@@ -47,8 +48,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to new logger err=%s\n", err.Error())
 	}
+
+	clientConfigurations := configuration.GetClientConfig()
+	userClient := rest.NewUserClient(clientConfigurations, logger)
+
 	// Create the UserRepository
-	userRepo := userRepositoryRest.NewUserRepositoryRest()
+	userRepo := userRepositoryRest.NewUserRepositoryRest(userClient)
 	orgRepo := organizationRepositoryPostgres.NewOrganizationRepository(conn)
 	userOrgRepo := userOrganizationRepositoryPostgres.NewUserOrganizationRepository(conn)
 	roleRepo := roleRepositoryPostgres.NewRoleRepository(conn)
@@ -132,7 +137,7 @@ func initOrganizationController(
 		logger,
 	)
 
-	createTeamUsecase := organization.NewCreateTeamUseCase(
+	createTeamUseCase := organization.NewCreateTeamUseCase(
 		userOrgRepo,
 		teamRepo,
 		teamMemberRepo,
@@ -154,7 +159,7 @@ func initOrganizationController(
 		getOrganizationsByUserIdUseCase,
 		createOrganizationUserUseCase,
 		removeOrganizationUserUseCase,
-		createTeamUsecase,
+		createTeamUseCase,
 		addMemberToTeamUseCase,
 		middleware,
 	)

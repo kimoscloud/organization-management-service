@@ -34,7 +34,7 @@ func (cu GetOrganizationsByUserUseCase) Handler(
 		).AppError
 	}
 	//Map result to response
-	var response []organizationResponse.OrganizationListLightElement
+	var response []organizationResponse.OrganizationListLightElement = make([]organizationResponse.OrganizationListLightElement, 0)
 	for _, organization := range organizationResult {
 		response = append(
 			response, organizationResponse.OrganizationListLightElement{

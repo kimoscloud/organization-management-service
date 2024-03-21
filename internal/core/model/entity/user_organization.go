@@ -20,7 +20,7 @@ type UserOrganization struct {
 }
 
 func (UserOrganization) TableName() string {
-	return "Organization_Users"
+	return "organization_users"
 }
 
 func (o UserOrganization) hasPermission(permission string) bool {
